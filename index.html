@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistente Jurídico</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    .font-heading { font-family: 'Cormorant Garamond', Georgia, serif; }
+    .font-body { font-family: 'DM Sans', sans-serif; }
+    .doc-fade-in { animation: docFadeIn 0.4s ease-out forwards; opacity: 0; }
+    @keyframes docFadeIn { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(12px); } }
+    .slide-up { animation: slideUp 0.5s ease-out forwards; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+    .input-field { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    .input-field:focus { border-color: #1a3a5c; box-shadow: 0 0 0 3px rgba(26,58,92,0.1); }
+    .btn-primary { transition: all 0.2s ease; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,58,92,0.3); }
+    .toast-enter { animation: toastIn 0.3s ease-out; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: white; }
+    }
+    .print-only { display: none; }
+    .tab-active { border-bottom: 3px solid #1a3a5c; color: #1a3a5c; font-weight: 600; }
+    .history-row { transition: background-color 0.15s ease; }
+    .history-row:hover { background-color: rgba(26,58,92,0.04); }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full font-body">
+  <div id="app-wrapper" class="h-full w-full overflow-auto" style="background-color: #f0ece4;"><!-- Toast Container -->
+   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Header -->
+   <header class="w-full no-print" style="background-color: #1a3a5c;">
+    <div class="max-w-5xl mx-auto px-4 py-5 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: #c9a84c;"><i data-lucide="scale" style="width:22px;height:22px;color:#1a3a5c;"></i>
+      </div>
+      <div>
+       <h1 id="app-title-el" class="font-heading text-2xl font-bold text-white tracking-tight">Assistente Jurídico</h1>
+       <p id="office-name-el" class="text-xs mt-0.5" style="color: #a8c4d8;">Documentos Processuais</p>
+      </div>
+     </div>
+     <div class="flex gap-2"><button onclick="showView('form')" id="tab-form" class="px-4 py-2 text-sm rounded-lg text-white hover:bg-white/10 flex items-center gap-1.5" style="background: rgba(255,255,255,0.1);"> <i data-lucide="file-plus" style="width:16px;height:16px;"></i> Novo </button> <button onclick="showView('history')" id="tab-history" class="px-4 py-2 text-sm rounded-lg text-white hover:bg-white/10 flex items-center gap-1.5"> <i data-lucide="archive" style="width:16px;height:16px;"></i> Histórico </button>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-5xl mx-auto px-4 py-6"><!-- FORM VIEW -->
+    <div id="view-form" class="slide-up"><!-- Document Type Selection -->
+     <div class="mb-6"><label class="block text-sm font-semibold mb-3" style="color: #1a3a5c;">Tipo de Documento</label>
+      <div class="flex gap-3 flex-wrap"><button onclick="selectDocType('substabelecimento')" id="btn-sub" class="card-hover px-5 py-4 rounded-xl border-2 flex items-center gap-3" style="background:#fff;border-color:#c9a84c;">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#fdf6e3;"><i data-lucide="file-signature" style="width:20px;height:20px;color:#c9a84c;"></i>
+        </div>
+        <div class="text-left">
+         <div class="font-semibold text-sm" style="color:#1a3a5c;">
+          Substabelecimento
+         </div>
+         <div class="text-xs" style="color:#6b7a8d;">
+          Transferência de poderes
+         </div>
+        </div></button> <button onclick="selectDocType('preposicao')" id="btn-prep" class="card-hover px-5 py-4 rounded-xl border-2 flex items-center gap-3" style="background:#fff;border-color:transparent;">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#e8f0f7;"><i data-lucide="user-check" style="width:20px;height:20px;color:#1a3a5c;"></i>
+        </div>
+        <div class="text-left">
+         <div class="font-semibold text-sm" style="color:#1a3a5c;">
+          Carta de Preposição
+         </div>
+         <div class="text-xs" style="color:#6b7a8d;">
+          Representação em audiência
+         </div>
+        </div></button>
+      </div>
+     </div><!-- Form Card -->
+     <div class="rounded-2xl p-6 shadow-sm" style="background:#ffffff;border:1px solid #e2ddd4;"><!-- Substabelecimento Fields -->
+      <div id="fields-sub">
+       <h2 class="font-heading text-xl font-bold mb-5" style="color:#1a3a5c;">Dados do Substabelecimento</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Advogado Outorgante (Nome)</label> <input type="text" id="sub_outorgante_nome" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Dr. João da Silva">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">OAB do Outorgante</label> <input type="text" id="sub_outorgante_oab" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="OAB/SP 123.456">
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Advogado Outorgado (Nome)</label> <input type="text" id="sub_outorgado_nome" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Dra. Maria Oliveira">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">OAB do Outorgado</label> <input type="text" id="sub_outorgado_oab" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="OAB/SP 654.321">
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Cliente / Outorgante dos Poderes</label> <input type="text" id="sub_cliente" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Empresa XYZ Ltda.">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">CNPJ / CPF do Cliente</label> <input type="text" id="sub_cliente_cnpj" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="12.345.678/0001-90">
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Número do Processo</label> <input type="text" id="sub_processo" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="0000000-00.0000.0.00.0000">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Vara / Tribunal</label> <input type="text" id="sub_vara" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="2ª Vara Cível - TJ/SP">
+        </div>
+       </div>
+       <div class="mb-4"><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Reserva de Poderes</label>
+        <div class="flex gap-4"><label class="flex items-center gap-2 cursor-pointer"> <input type="radio" name="reserva" value="com" checked class="accent-[#1a3a5c]"> <span class="text-sm" style="color:#4a5a6a;">Com reserva de poderes</span> </label> <label class="flex items-center gap-2 cursor-pointer"> <input type="radio" name="reserva" value="sem" class="accent-[#1a3a5c]"> <span class="text-sm" style="color:#4a5a6a;">Sem reserva de poderes</span> </label>
+        </div>
+       </div>
+      </div><!-- Carta de Preposição Fields -->
+      <div id="fields-prep" class="hidden">
+       <h2 class="font-heading text-xl font-bold mb-5" style="color:#1a3a5c;">Dados da Carta de Preposição</h2>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Nome da Empresa</label> <input type="text" id="prep_empresa" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Empresa XYZ Ltda.">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">CNPJ da Empresa</label> <input type="text" id="prep_cnpj" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="12.345.678/0001-90">
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Nome do Preposto</label> <input type="text" id="prep_nome" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Carlos Santos">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">CPF do Preposto</label> <input type="text" id="prep_cpf" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="000.000.000-00">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Cargo do Preposto</label> <input type="text" id="prep_cargo" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="Gerente Administrativo">
+        </div>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Número do Processo</label> <input type="text" id="prep_processo" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="0000000-00.0000.0.00.0000">
+        </div>
+        <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Vara / Tribunal</label> <input type="text" id="prep_vara" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="1ª Vara do Trabalho - TRT/SP">
+        </div>
+       </div>
+      </div><!-- Common: City/State -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pt-4" style="border-top:1px solid #e2ddd4;">
+       <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Cidade</label> <input type="text" id="field_cidade" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="São Paulo">
+       </div>
+       <div><label class="block text-xs font-semibold mb-1.5" style="color:#4a5a6a;">Estado</label> <input type="text" id="field_estado" class="input-field w-full px-3 py-2.5 rounded-lg text-sm border outline-none" style="border-color:#d4cfc6;" placeholder="SP">
+       </div>
+      </div><!-- Buttons -->
+      <div class="flex gap-3 flex-wrap"><button onclick="generateDocument()" id="btn-generate" class="btn-primary px-6 py-3 rounded-xl text-white font-semibold text-sm flex items-center gap-2" style="background:#1a3a5c;"> <i data-lucide="file-text" style="width:18px;height:18px;"></i> Gerar Documento </button> <button onclick="clearForm()" class="px-5 py-3 rounded-xl text-sm font-medium border flex items-center gap-2" style="color:#6b7a8d;border-color:#d4cfc6;"> <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Limpar </button>
+      </div>
+     </div><!-- Document Preview -->
+     <div id="doc-preview" class="mt-6 hidden doc-fade-in">
+      <div class="flex items-center justify-between mb-3">
+       <h3 class="font-heading text-lg font-bold" style="color:#1a3a5c;">Documento Gerado</h3>
+       <div class="flex gap-2"><button onclick="copyDocument()" class="px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 border" style="color:#1a3a5c;border-color:#d4cfc6;"> <i data-lucide="copy" style="width:14px;height:14px;"></i> Copiar </button> <button onclick="printDocument()" class="px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-white" style="background:#1a3a5c;"> <i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimir </button>
+       </div>
+      </div>
+      <div id="doc-content" class="rounded-2xl p-8 shadow-sm font-heading" style="background:#fff;border:1px solid #e2ddd4;line-height:1.8;color:#2a2a2a;"></div>
+     </div>
+    </div><!-- HISTORY VIEW -->
+    <div id="view-history" class="hidden slide-up">
+     <div class="rounded-2xl shadow-sm overflow-hidden" style="background:#fff;border:1px solid #e2ddd4;">
+      <div class="p-5 flex items-center justify-between" style="border-bottom:1px solid #e2ddd4;">
+       <h2 class="font-heading text-xl font-bold" style="color:#1a3a5c;">Documentos Salvos</h2><span id="history-count" class="text-xs px-3 py-1 rounded-full font-semibold" style="background:#fdf6e3;color:#a88a2e;">0 documentos</span>
+      </div>
+      <div id="history-list" class="divide-y" style="border-color:#e2ddd4;">
+       <div id="history-empty" class="py-16 text-center"><i data-lucide="inbox" style="width:48px;height:48px;color:#c4bfb4;margin:0 auto 12px;display:block;"></i>
+        <p class="text-sm" style="color:#8a8378;">Nenhum documento salvo ainda.</p>
+        <p class="text-xs mt-1" style="color:#a8a093;">Gere um documento para vê-lo aqui.</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+    // State
+    let currentDocType = 'substabelecimento';
+    let allDocuments = [];
+    let isLoading = false;
+
+    const defaultConfig = {
+      app_title: 'Assistente Jurídico',
+      office_name: 'Documentos Processuais',
+      background_color: '#f0ece4',
+      surface_color: '#ffffff',
+      text_color: '#1a3a5c',
+      primary_action_color: '#1a3a5c',
+      accent_color: '#c9a84c',
+      font_family: 'Cormorant Garamond',
+      font_size: 16
+    };
+
+    // Element SDK
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => {
+        const bg = config.background_color || defaultConfig.background_color;
+        const surface = config.surface_color || defaultConfig.surface_color;
+        const text = config.text_color || defaultConfig.text_color;
+        const primary = config.primary_action_color || defaultConfig.primary_action_color;
+        const accent = config.accent_color || defaultConfig.accent_color;
+        const fontFamily = config.font_family || defaultConfig.font_family;
+        const fontSize = config.font_size || defaultConfig.font_size;
+
+        document.getElementById('app-wrapper').style.backgroundColor = bg;
+        document.querySelector('header').style.backgroundColor = primary;
+
+        document.getElementById('app-title-el').textContent = config.app_title || defaultConfig.app_title;
+        document.getElementById('office-name-el').textContent = config.office_name || defaultConfig.office_name;
+
+        document.querySelectorAll('.font-heading').forEach(el => {
+          el.style.fontFamily = `${fontFamily}, Georgia, serif`;
+        });
+        document.querySelectorAll('.font-body, .input-field, button, label, span, p').forEach(el => {
+          el.style.fontSize = el.classList.contains('font-heading') ? '' : `${fontSize * 0.875}px`;
+        });
+
+        // Update primary buttons
+        document.getElementById('btn-generate').style.backgroundColor = primary;
+        document.querySelectorAll('[style*="background:#1a3a5c"]').forEach(el => {
+          el.style.backgroundColor = primary;
+        });
+      },
+      mapToCapabilities: (config) => ({
+        recolorables: [
+          { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+          { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+          { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+          { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (v) => { config.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+          { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['office_name', config.office_name || defaultConfig.office_name]
+      ])
+    });
+
+    // Data SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        allDocuments = data;
+        renderHistory();
+      }
+    };
+
+    (async () => {
+      const res = await window.dataSdk.init(dataHandler);
+      if (!res.isOk) {
+        showToast('Erro ao conectar com armazenamento.', 'error');
+      }
+    })();
+
+    // Views
+    function showView(view) {
+      document.getElementById('view-form').classList.toggle('hidden', view !== 'form');
+      document.getElementById('view-history').classList.toggle('hidden', view !== 'history');
+      document.getElementById('tab-form').style.background = view === 'form' ? 'rgba(255,255,255,0.15)' : 'transparent';
+      document.getElementById('tab-history').style.background = view === 'history' ? 'rgba(255,255,255,0.15)' : 'transparent';
+    }
+
+    // Doc type selection
+    function selectDocType(type) {
+      currentDocType = type;
+      document.getElementById('btn-sub').style.borderColor = type === 'substabelecimento' ? '#c9a84c' : 'transparent';
+      document.getElementById('btn-prep').style.borderColor = type === 'preposicao' ? '#c9a84c' : 'transparent';
+      document.getElementById('fields-sub').classList.toggle('hidden', type !== 'substabelecimento');
+      document.getElementById('fields-prep').classList.toggle('hid
